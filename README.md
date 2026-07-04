@@ -4,12 +4,13 @@ This is a proxy motor-behavior recognition task (arm-flapping / head-banging / s
 
 Lightweight research repository focused on proxy motor-behavior recognition from public dataset video.
 
-Current scope:
+## Current status
 
-- Phase 0 data-ethics policy and data-access reporting template
-- offline manifest and CSV report helpers
-- dry-run acquisition CLI scaffold with no download implementation
-- no MediaPipe, modeling, validation, or training implementation
+- Phase 0: ethics policy, SSBD+ metadata parsing, and metadata-only access reporting; no video downloads or availability verification
+- Phase 1: numeric pose-keypoint model and CSV I/O, video-scoped labeled windows, interpretable features, a safe MediaPipe extraction scaffold, and a synthetic feature-table pipeline
+- Full verification: 53 tests passed; the environment-level `pytest-asyncio` warning is non-blocking
+- Next: feature-table-only baseline models with mandatory child/video-disjoint validation
+- Not yet implemented: real MediaPipe extraction, baseline models, validation metrics, permutation testing, or LOSO evaluation
 
 Planned top-level layout:
 
