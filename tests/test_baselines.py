@@ -71,6 +71,23 @@ def test_baseline_script_runs_on_synthetic_csv_without_artifacts(tmp_path) -> No
         text=True,
     )
 
-    assert "model=logistic_regression" in completed.stdout
-    assert "model=random_forest" in completed.stdout
+    assert "Fold metrics:" in completed.stdout
+    assert "Metric summaries:" in completed.stdout
+    assert "logistic_regression" in completed.stdout
+    assert "random_forest" in completed.stdout
+    assert "groups_tested" in completed.stdout
+    assert "model=logistic_regression folds=3" in completed.stdout
+    assert "model=random_forest folds=3" in completed.stdout
     assert sorted(path.name for path in tmp_path.iterdir()) == ["features.csv"]
+
+
+def test_baseline_script_exposes_no_leaky_option() -> None:
+    script = Path(__file__).resolve().parents[1] / "scripts" / "run_baselines.py"
+    completed = subprocess.run(
+        [sys.executable, str(script), "--help"],
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+
+    assert "leaky" not in completed.stdout.lower()

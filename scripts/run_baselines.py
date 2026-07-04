@@ -18,7 +18,13 @@ SOURCE_ROOT = REPOSITORY_ROOT / "src"
 if str(SOURCE_ROOT) not in sys.path:
     sys.path.insert(0, str(SOURCE_ROOT))
 
-from ssbd_behavior.evaluation import binary_classification_metrics  # noqa: E402
+from ssbd_behavior.evaluation import (  # noqa: E402
+    FoldMetricRow,
+    binary_classification_metrics,
+    format_fold_metrics,
+    format_metric_summary,
+    summarize_fold_metrics,
+)
 from ssbd_behavior.models import (  # noqa: E402
     predict_scores,
     train_logistic_regression_baseline,
@@ -68,6 +74,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         ("logistic_regression", train_logistic_regression_baseline),
         ("random_forest", train_random_forest_baseline),
     )
+    rows: list[FoldMetricRow] = []
     for fold_number, (train_indices, test_indices) in enumerate(splits, start=1):
         if np.unique(y[train_indices]).size < 2:
             raise ValueError(
@@ -78,13 +85,27 @@ def main(argv: Sequence[str] | None = None) -> int:
             model = trainer(X[train_indices], y[train_indices])
             scores = predict_scores(model, X[test_indices])
             metrics = binary_classification_metrics(y[test_indices], scores)
-            print(
-                f"fold={fold_number} model={model_name} "
-                + " ".join(
-                    f"{name}={'unavailable' if value is None else f'{value:.6f}'}"
-                    for name, value in metrics.items()
+            test_labels = y[test_indices]
+            rows.append(
+                FoldMetricRow(
+                    fold=fold_number,
+                    model_name=model_name,
+                    auroc=metrics["auroc"],
+                    auprc=metrics["auprc"],
+                    brier_score=metrics["brier_score"],
+                    ece=metrics["ece"],
+                    n_test=len(test_indices),
+                    n_positive=int(test_labels.sum()),
+                    n_negative=int((test_labels == 0).sum()),
+                    groups_tested=tuple(
+                        sorted(set(str(group) for group in groups[test_indices]))
+                    ),
                 )
             )
+    print("\nFold metrics:")
+    print(format_fold_metrics(rows))
+    print("\nMetric summaries:")
+    print(format_metric_summary(summarize_fold_metrics(rows)))
     return 0
 
 
