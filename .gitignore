@@ -28,11 +28,19 @@ videos/
 video/
 frames/
 artifacts/
-models/
+/models/
 checkpoints/
 runs/
 outputs/
 logs/
+*.joblib
+*.pkl
+*.pickle
+*.onnx
+*.pt
+*.pth
+*.ckpt
+*.h5
 
 # Caches
 .cache/

@@ -2,12 +2,13 @@ This is a proxy motor-behavior recognition task (arm-flapping / head-banging / s
 
 # SSBD self-stimulatory behavior recognition
 
-Lightweight scaffold for a research-oriented repository focused on proxy motor-behavior recognition from public dataset video.
+Lightweight research repository focused on proxy motor-behavior recognition from public dataset video.
 
 Current scope:
 
-- repository structure only
-- no data download or ingestion code
+- Phase 0 data-ethics policy and data-access reporting template
+- offline manifest and CSV report helpers
+- dry-run acquisition CLI scaffold with no download implementation
 - no MediaPipe, modeling, validation, or training implementation
 
 Planned top-level layout:
