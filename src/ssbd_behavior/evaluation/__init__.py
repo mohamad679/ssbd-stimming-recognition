@@ -23,6 +23,7 @@ from .reporting import (
     format_metric_summary,
     summarize_fold_metrics,
 )
+from .svg_validation import validate_svg_file, validate_svg_files
 
 __all__ = [
     "auprc",
@@ -42,4 +43,6 @@ __all__ = [
     "format_fold_metrics",
     "format_metric_summary",
     "summarize_fold_metrics",
+    "validate_svg_file",
+    "validate_svg_files",
 ]

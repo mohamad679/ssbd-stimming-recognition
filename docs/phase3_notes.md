@@ -7,6 +7,9 @@ Phase 3B adds within-group permutation testing.
 Phase 3C adds artifact provenance manifest tooling for explicit numeric
 artifacts.
 
+Phase 3D adds SVG well-formedness validation tooling so future generated SVG
+figures can be checked as XML before commit.
+
 The LOSO runner in `scripts/run_loso.py` evaluates the same two baseline model
 types as the Phase 2 grouped runner while keeping groups fully disjoint and
 reporting unavailable folds honestly:
@@ -30,6 +33,10 @@ inputs.
 Raw videos, extracted frames, images, and model artifacts are not normal
 committed provenance targets in this repo and must not be recorded by the
 artifact-manifest CLI added in this phase.
+
+Actual interpretability figures are not implemented in this phase. When Phase 4
+adds generated SVG outputs later, they should be validated with the SVG
+validation tooling before commit.
 
 This project remains a proxy motor-behavior recognition scaffold and must not be
 described as a clinical or diagnostic autism screening tool.
