@@ -16,7 +16,7 @@ Any visual case study must use anonymized stick-figure skeleton plots only. Real
 
 ## Raw-video lifecycle
 
-In later phases, each raw video must be deleted immediately after its numeric keypoints have been extracted. Processing must follow a process-then-delete workflow so raw videos do not accumulate on disk. Raw-video locations must remain outside git-tracked paths.
+The single-video extractor enforces process-then-delete: by default, it removes the local raw video only after the numeric keypoint CSV has been written successfully. It never deletes the input after an extraction failure. Raw-video locations must remain outside git-tracked paths or in the gitignored `data/raw/` staging directory.
 
 ## Reporting
 
