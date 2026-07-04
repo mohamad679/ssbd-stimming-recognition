@@ -18,8 +18,8 @@ class FoldMetricRow:
     model_name: str
     auroc: float | None
     auprc: float | None
-    brier_score: float
-    ece: float
+    brier_score: float | None
+    ece: float | None
     n_test: int
     n_positive: int
     n_negative: int
