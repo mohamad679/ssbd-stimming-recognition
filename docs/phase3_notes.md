@@ -40,3 +40,6 @@ validation tooling before commit.
 
 This project remains a proxy motor-behavior recognition scaffold and must not be
 described as a clinical or diagnostic autism screening tool.
+
+Phase 3 closeout: the scaffold is complete, and Phase 4 interpretability
+skeletal visualizations are next.
