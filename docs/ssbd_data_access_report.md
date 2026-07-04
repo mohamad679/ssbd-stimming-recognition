@@ -20,6 +20,20 @@ This is the Phase 0 reporting template. No videos have been downloaded by the re
 - Manifest reference: `url-list.pdf`, with XML annotations provided separately by the dataset source.
 - Known risk from the roadmap: historical link rot; current availability must be measured and reported rather than assumed.
 
+## Observed SSBD+ schema
+
+Metadata and schema inspection of the external SSBD+ reference clone found one XML document per annotated video. Each `video` has an `id`, a `url`, and a `behaviours` collection. Each `behaviour` has an `id`, a `time` value in `start:end` integer-seconds format, and a `category`. A video can contain multiple behaviour segments, including multiple segments in the same category.
+
+The observed aggregate CSV uses these columns:
+
+- `xml_file_name`
+- `youtube_video_url`
+- `action_start_time`
+- `action_end_time`
+- `action_category`
+
+The observed CSV row count in the external reference clone was **65**. This is metadata/schema inspection only, not video availability verification. It does not establish that any referenced video is currently downloadable.
+
 ## Access-attempt table
 
 One row must be recorded for every attempted video. `URL or manifest reference` may contain a public URL or a stable reference into a locally obtained dataset manifest; it must not point to committed raw media.
