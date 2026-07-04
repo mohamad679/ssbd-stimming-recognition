@@ -1,0 +1,53 @@
+# Python
+__pycache__/
+*.py[cod]
+*.so
+.Python
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+.coverage.*
+htmlcov/
+
+# Virtual environments
+.venv/
+venv/
+env/
+ENV/
+
+# Build artifacts
+build/
+dist/
+*.egg-info/
+
+# Project data
+data/raw/
+data/processed/
+videos/
+video/
+frames/
+artifacts/
+models/
+checkpoints/
+runs/
+outputs/
+logs/
+
+# Caches
+.cache/
+cache/
+.codebase-memory/
+.codex/
+.agents/
+.memory/
+memory/
+agent-memory/
+
+# OS / editor files
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+*.swo
