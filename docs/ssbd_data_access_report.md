@@ -34,6 +34,8 @@ The observed aggregate CSV uses these columns:
 
 The observed CSV row count in the external reference clone was **65**. This is metadata/schema inspection only, not video availability verification. It does not establish that any referenced video is currently downloadable.
 
+An initial per-video `not_attempted` report can be generated directly from this metadata with `scripts/acquisition/resolve_videos.py --manifest <csv> --output <report>`. This offline dry run aggregates annotated segments by video and does not check video availability or invoke a downloader.
+
 ## Access-attempt table
 
 One row must be recorded for every attempted video. `URL or manifest reference` may contain a public URL or a stable reference into a locally obtained dataset manifest; it must not point to committed raw media.

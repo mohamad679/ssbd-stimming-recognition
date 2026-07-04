@@ -7,6 +7,7 @@ from enum import Enum
 class DatasetSource(str, Enum):
     """Dataset sources permitted by the project roadmap."""
 
+    SSBDPLUS = "ssbdplus"
     SSBD_PLUS = "SSBD+"
     ORIGINAL_SSBD = "original SSBD"
 
