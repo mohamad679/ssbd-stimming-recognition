@@ -20,6 +20,11 @@ dependencies = [
 dev = [
   "pytest>=8.0",
 ]
+benchmark = [
+  "mediapipe>=0.10.14",
+  "opencv-python-headless>=4.10",
+  "yt-dlp>=2025.1.15",
+]
 
 [tool.setuptools]
 package-dir = {"" = "src"}

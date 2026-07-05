@@ -55,6 +55,68 @@ def test_load_ssbdplus_csv(tmp_path):
     assert segments[0].annotation_file == "action_1.xml"
 
 
+@pytest.mark.parametrize(
+    ("start", "end", "expected_start", "expected_end"),
+    [
+        ("3", "4", 3, 4),
+        ("3.0", "4.0", 3, 4),
+        ("3.5", "4.75", 3.5, 4.75),
+    ],
+)
+def test_load_ssbdplus_csv_accepts_numeric_seconds(
+    tmp_path, start, end, expected_start, expected_end
+):
+    csv_path = tmp_path / "segments.csv"
+    _write_csv_segment(csv_path, start=start, end=end)
+
+    segment = load_ssbdplus_csv(csv_path)[0]
+
+    assert segment.start_time == expected_start
+    assert segment.end_time == expected_end
+
+
+@pytest.mark.parametrize(
+    ("start", "end", "message"),
+    [
+        ("not-a-second", "4", "invalid numeric second"),
+        ("-1", "4", "second must be non-negative"),
+        ("nan", "4", "second must be finite"),
+        ("3", "3", "start time must be less than end time"),
+        ("4", "3", "start time must be less than end time"),
+    ],
+)
+def test_load_ssbdplus_csv_rejects_invalid_seconds(tmp_path, start, end, message):
+    csv_path = tmp_path / "segments.csv"
+    _write_csv_segment(csv_path, start=start, end=end)
+
+    with pytest.raises(ValueError, match=message):
+        load_ssbdplus_csv(csv_path)
+
+
+def _write_csv_segment(csv_path, *, start, end):
+    with csv_path.open("w", encoding="utf-8", newline="") as stream:
+        writer = csv.DictWriter(
+            stream,
+            fieldnames=[
+                "xml_file_name",
+                "youtube_video_url",
+                "action_start_time",
+                "action_end_time",
+                "action_category",
+            ],
+        )
+        writer.writeheader()
+        writer.writerow(
+            {
+                "xml_file_name": "action_1.xml",
+                "youtube_video_url": "https://example.invalid/video-1",
+                "action_start_time": start,
+                "action_end_time": end,
+                "action_category": "armflapping",
+            }
+        )
+
+
 def test_load_ssbdplus_csv_requires_observed_columns(tmp_path):
     csv_path = tmp_path / "segments.csv"
     csv_path.write_text("xml_file_name,action_category\naction_1.xml,armflapping\n")

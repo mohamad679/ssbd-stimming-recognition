@@ -30,7 +30,9 @@ class ExtractionConfig:
 
     Inputs inside the repository are rejected unless they are under the
     gitignored ``data/raw`` directory. Outputs inside the repository are
-    restricted to the gitignored ``data/processed`` directory.
+    restricted to the gitignored ``data/processed`` directory. The benchmark
+    runner may additionally authorize its own raw and keypoint subdirectories
+    through ``SSBD_BENCHMARK_WORK_ROOT``.
     """
 
     video_id: str
@@ -52,23 +54,41 @@ class ExtractionConfig:
 
         input_path = Path(self.input_video_path).expanduser()
         output_path = Path(self.output_csv_path).expanduser()
+        benchmark_work_root_text = os.environ.get("SSBD_BENCHMARK_WORK_ROOT")
+        benchmark_work_root = (
+            Path(benchmark_work_root_text).expanduser()
+            if benchmark_work_root_text
+            else None
+        )
+        benchmark_input_allowed = benchmark_work_root is not None and _is_within(
+            input_path, benchmark_work_root / "temporary" / "raw"
+        )
+        benchmark_output_allowed = benchmark_work_root is not None and _is_within(
+            output_path, benchmark_work_root / "artifacts" / "keypoints"
+        )
         if not input_path.is_file():
             raise ValueError(f"input_video_path must be an existing local file: {input_path}")
         if output_path.suffix.lower() != ".csv":
             raise ValueError("output_csv_path must have a .csv extension")
-        if _is_within(input_path, REPOSITORY_ROOT) and not _is_within(
-            input_path, SAFE_REPOSITORY_INPUT_ROOT
+        if (
+            _is_within(input_path, REPOSITORY_ROOT)
+            and not _is_within(input_path, SAFE_REPOSITORY_INPUT_ROOT)
+            and not benchmark_input_allowed
         ):
             raise ValueError(
                 "input_video_path must be outside the repository or under the "
-                "gitignored data/raw directory"
+                "gitignored data/raw directory (benchmark runs may use their "
+                "designated temporary/raw directory)"
             )
-        if _is_within(output_path, REPOSITORY_ROOT) and not _is_within(
-            output_path, SAFE_REPOSITORY_OUTPUT_ROOT
+        if (
+            _is_within(output_path, REPOSITORY_ROOT)
+            and not _is_within(output_path, SAFE_REPOSITORY_OUTPUT_ROOT)
+            and not benchmark_output_allowed
         ):
             raise ValueError(
                 "output_csv_path inside the repository must be under the "
-                "gitignored data/processed directory"
+                "gitignored data/processed directory (benchmark runs may use "
+                "their designated artifacts/keypoints directory)"
             )
         if input_path.resolve() == output_path.resolve():
             raise ValueError("input_video_path and output_csv_path must differ")
@@ -237,22 +257,68 @@ class _MediaPipePoseEstimator:
                 "Default pose estimation requires optional dependency 'mediapipe'; "
                 "inject pose_estimator in tests"
             ) from exc
-        self._pose = mp.solutions.pose.Pose()
+        solutions = getattr(mp, "solutions", None)
+        if solutions is not None and getattr(solutions, "pose", None) is not None:
+            self._backend = "solutions"
+            self._pose = solutions.pose.Pose()
+            return
+
+        model_path = os.environ.get("MEDIAPIPE_POSE_LANDMARKER_TASK")
+        if not model_path:
+            raise NotImplementedError(
+                "This MediaPipe build has no mp.solutions.pose. Set "
+                "MEDIAPIPE_POSE_LANDMARKER_TASK to a temporary Pose Landmarker "
+                ".task file to use the MediaPipe Tasks API."
+            )
+        candidate = Path(model_path).expanduser()
+        if not candidate.is_file():
+            raise FileNotFoundError(
+                "MediaPipe Pose Landmarker task file does not exist: "
+                f"{candidate}"
+            )
+
+        try:
+            base_options = mp.tasks.BaseOptions(model_asset_path=str(candidate))
+            options = mp.tasks.vision.PoseLandmarkerOptions(
+                base_options=base_options,
+                running_mode=mp.tasks.vision.RunningMode.IMAGE,
+            )
+            self._pose = mp.tasks.vision.PoseLandmarker.create_from_options(options)
+        except (AttributeError, TypeError) as exc:
+            raise NotImplementedError(
+                "Installed 'mediapipe' exposes neither the legacy Pose solution "
+                "nor a compatible Tasks PoseLandmarker API"
+            ) from exc
+        self._backend = "tasks"
 
     def __call__(self, frame: Any) -> list[PoseLandmark] | None:
         # OpenCV supplies BGR arrays; MediaPipe Pose expects RGB arrays.
-        results = self._pose.process(frame[..., ::-1])
-        if results.pose_landmarks is None:
+        rgb_frame = frame[..., ::-1]
+        if self._backend == "solutions":
+            results = self._pose.process(rgb_frame)
+            landmark_sets = (
+                [] if results.pose_landmarks is None else [results.pose_landmarks.landmark]
+            )
+        else:
+            import mediapipe as mp  # type: ignore[import-not-found]
+
+            results = self._pose.detect(
+                mp.Image(image_format=mp.ImageFormat.SRGB, data=rgb_frame)
+            )
+            landmark_sets = results.pose_landmarks
+
+        if not landmark_sets:
             return None
+        landmarks = landmark_sets[0]
         return [
             PoseLandmark(
                 landmark_index=index,
                 x=float(landmark.x),
                 y=float(landmark.y),
                 z=float(landmark.z),
-                confidence=float(landmark.visibility),
+                confidence=float(getattr(landmark, "visibility", 1.0) or 0.0),
             )
-            for index, landmark in enumerate(results.pose_landmarks.landmark)
+            for index, landmark in enumerate(landmarks)
         ]
 
     def close(self) -> None:

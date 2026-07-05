@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import csv
+import math
 import re
 import xml.etree.ElementTree as ET
 from collections import Counter
@@ -29,8 +30,8 @@ class SSBDPlusSegment:
 
     video_id: str
     url: str
-    start_time: int
-    end_time: int
+    start_time: int | float
+    end_time: int | float
     category: str
     annotation_file: str | None = None
     behaviour_id: str | None = None
@@ -156,11 +157,17 @@ def summarize_segments(
     }
 
 
-def _parse_second(value: str | None) -> int:
+def _parse_second(value: str | None) -> int | float:
     text = _required_text(value, "time")
-    if not text.isdigit():
-        raise ValueError(f"invalid integer second {value!r}")
-    return int(text)
+    try:
+        second = float(text)
+    except ValueError as error:
+        raise ValueError(f"invalid numeric second {value!r}") from error
+    if not math.isfinite(second):
+        raise ValueError(f"second must be finite, got {value!r}")
+    if second < 0:
+        raise ValueError(f"second must be non-negative, got {value!r}")
+    return int(second) if second.is_integer() else second
 
 
 def _required_text(value: str | None, field_name: str) -> str:

@@ -1,5 +1,8 @@
 from pathlib import Path
+from types import SimpleNamespace
+import sys
 
+import numpy as np
 import pytest
 
 from ssbd_behavior.pose import (
@@ -9,6 +12,7 @@ from ssbd_behavior.pose import (
     extract_pose_keypoints,
     read_keypoints_csv,
 )
+from ssbd_behavior.pose.extract_keypoints import _MediaPipePoseEstimator
 
 
 def _config(tmp_path, *, delete=True, max_frames=None):
@@ -101,3 +105,43 @@ def test_extraction_creates_no_media_files_in_repository(tmp_path):
         if path.is_file() and path.suffix.lower() in forbidden_suffixes
     }
     assert after == before
+
+
+def test_mediapipe_tasks_fallback_when_solutions_is_unavailable(
+    tmp_path, monkeypatch
+):
+    task_path = tmp_path / "pose.task"
+    task_path.write_bytes(b"temporary task placeholder")
+
+    landmark = SimpleNamespace(x=0.1, y=0.2, z=-0.3, visibility=0.8)
+
+    class Detector:
+        def detect(self, _image):
+            return SimpleNamespace(pose_landmarks=[[landmark]])
+
+        def close(self):
+            return None
+
+    fake_mp = SimpleNamespace(
+        tasks=SimpleNamespace(
+            BaseOptions=lambda **kwargs: kwargs,
+            vision=SimpleNamespace(
+                RunningMode=SimpleNamespace(IMAGE="image"),
+                PoseLandmarkerOptions=lambda **kwargs: kwargs,
+                PoseLandmarker=SimpleNamespace(
+                    create_from_options=lambda _options: Detector()
+                ),
+            ),
+        ),
+        Image=lambda **kwargs: kwargs,
+        ImageFormat=SimpleNamespace(SRGB="srgb"),
+    )
+    monkeypatch.setitem(sys.modules, "mediapipe", fake_mp)
+    monkeypatch.setenv("MEDIAPIPE_POSE_LANDMARKER_TASK", str(task_path))
+
+    estimator = _MediaPipePoseEstimator()
+    rows = estimator(np.zeros((2, 2, 3), dtype=np.uint8))
+
+    assert estimator._backend == "tasks"
+    assert rows == [PoseLandmark(0, 0.1, 0.2, -0.3, 0.8)]
+    estimator.close()
