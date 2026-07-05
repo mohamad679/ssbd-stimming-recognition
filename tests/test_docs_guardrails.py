@@ -43,6 +43,13 @@ def test_readme_keeps_non_diagnostic_framing():
     assert "has not been clinically validated" in content
 
 
+def test_roadmap_excludes_internal_notes():
+    content = _read("SSBD_Behavior_Recognition_Roadmap.md")
+    assert "realistic time estimate" not in content
+    assert "kickoff prompt" not in content
+    assert "claude code" not in content
+
+
 def test_ci_workflow_stays_privacy_safe():
     content = _read(".github/workflows/tests.yml")
     assert "pytest" in content
