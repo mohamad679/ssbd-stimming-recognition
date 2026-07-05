@@ -1,8 +1,13 @@
-# Stage F: D-MS-STF
+# Stage F: Distilled Multi-Scale Skeleton Temporal Feature Learning (D-MS-STF)
 
-**D-MS-STF** means **Distilled Multi-Scale Skeleton Temporal Feature Learning**.
-It is a proposed, non-diagnostic motor-behavior recognition method operating on
-numeric pose keypoints and numeric window features.
+Distilled Multi-Scale Skeleton Temporal Feature Learning (D-MS-STF) is a
+proposed, non-diagnostic motor-behavior recognition method operating on numeric
+pose keypoints and numeric window features.
+
+Here, distillation means a fold-local teacher/student procedure: a teacher
+model produces soft training targets inside the training fold, and a student
+model is trained from hard labels plus these teacher-derived soft labels. No
+test-fold labels or test-fold groups are used to generate distillation targets.
 
 ## Method
 

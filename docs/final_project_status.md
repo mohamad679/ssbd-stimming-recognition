@@ -9,7 +9,7 @@
 - Phase 4: skeleton SVG and feature-importance interpretability scaffold completed
 - Phase 5: packaging, model card, limitations, and CI scaffold completed
 - Completed accessible-video SSBD+ benchmark run documented in `docs/full_ssbdplus_benchmark_report.md`
-- Stage G completed a real accessible-video D-MS-STF benchmark run with GroupKFold, LOSO, and 1,000 within-group permutations
+- Stage G completed a real accessible-video Distilled Multi-Scale Skeleton Temporal Feature Learning (D-MS-STF) benchmark run with GroupKFold, LOSO, and 1,000 within-group permutations
 - Final Stage G cohort summary: 28 processed videos, 1,178 windows, 349 positive windows, 829 negative windows, and 48 total features after augmentation including 42 `ms_*` features
 
 ## Current limitations

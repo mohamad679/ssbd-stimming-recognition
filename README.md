@@ -13,8 +13,8 @@ Lightweight research repository focused on proxy motor-behavior recognition from
 - Phase 4: complete as a scaffold, with privacy-safe skeleton SVG visualization and model-native numeric feature-importance tooling
 - Phase 5: complete as a scaffold, with packaging metadata, conservative model-card and limitations documentation, and GitHub Actions CI for lightweight synthetic checks
 - Current benchmark status: completed accessible-video Colab run documented in `docs/full_ssbdplus_benchmark_report.md`
-- Stage F: D-MS-STF adds multi-scale numeric skeleton features and strictly fold-local, inner-cross-fitted teacher/student evaluation; see `docs/stage_f_distilled_ms_stf.md`
-- Stage G: completed a real accessible-video SSBD+ D-MS-STF benchmark run with GroupKFold, LOSO, and 1,000 within-group permutations; see `docs/stage_g_d_ms_stf_colab.md`
+- Stage F: Distilled Multi-Scale Skeleton Temporal Feature Learning (D-MS-STF) adds multi-scale numeric skeleton features and strictly fold-local, inner-cross-fitted teacher/student evaluation; see `docs/stage_f_distilled_ms_stf.md`
+- Stage G: completed a real accessible-video SSBD+ Distilled Multi-Scale Skeleton Temporal Feature Learning (D-MS-STF) benchmark run with GroupKFold, LOSO, and 1,000 within-group permutations; see `docs/stage_g_d_ms_stf_colab.md`
 - Benchmarked on 36 SSBD+ metadata videos; 28 were successfully processed and 8 were unavailable at access time
 - Feature table size: 65 segments, 1,178 windows, 349 positive windows, 829 negative windows, about 29.6% positive prevalence
 - Stage G augmented feature set: 48 total features, including 42 `ms_*` multi-scale features

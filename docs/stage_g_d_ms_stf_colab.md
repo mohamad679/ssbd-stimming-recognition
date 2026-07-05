@@ -1,8 +1,14 @@
-# Stage G: Colab D-MS-STF results workflow
+# Stage G: Colab Distilled Multi-Scale Skeleton Temporal Feature Learning (D-MS-STF) results workflow
 
-Stage G runs the Stage F D-MS-STF evaluator on the numeric artifacts already
-produced by the full SSBD+ benchmark. It does not download videos, decode
-frames, run MediaPipe, or require a MediaPipe `.task` file.
+Stage G runs the Stage F Distilled Multi-Scale Skeleton Temporal Feature
+Learning (D-MS-STF) evaluator on the numeric artifacts already produced by the
+full SSBD+ benchmark. It does not download videos, decode frames, run
+MediaPipe, or require a MediaPipe `.task` file.
+
+Here, distillation means a fold-local teacher/student procedure: a teacher
+model produces soft training targets inside the training fold, and a student
+model is trained from hard labels plus these teacher-derived soft labels. No
+test-fold labels or test-fold groups are used to generate distillation targets.
 
 The documented final Stage G run was executed on the accessible-video SSBD+
 benchmark cohort with 28 processed videos, 1,178 feature windows, 349 positive

@@ -16,11 +16,11 @@ Run summary:
 - Positive prevalence: approximately 29.6%
 - Stage G feature set: 48 total features after augmentation
 - Multi-scale feature count: 42 `ms_*` features
-- Permutation test count for the final D-MS-STF run: 1,000
+- Permutation test count for the final Distilled Multi-Scale Skeleton Temporal Feature Learning (D-MS-STF) run: 1,000
 
 The strongest model signal in this run came from wrist-distance variability and repetitive wrist/head movement features. That is consistent with a non-diagnostic motor-behavior recognition task and should not be reframed as autism detection or screening.
 
-Stage G completed a real D-MS-STF run on the accessible-video SSBD+ benchmark.
+Stage G completed a real Distilled Multi-Scale Skeleton Temporal Feature Learning (D-MS-STF) run on the accessible-video SSBD+ benchmark.
 The final empirical picture is mixed: D-MS-STF was statistically above the
 within-group permutation null, did not beat the current logistic baseline on
 AUROC, slightly improved GroupKFold AUPRC, and showed somewhat better

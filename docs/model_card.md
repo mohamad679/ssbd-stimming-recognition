@@ -28,7 +28,7 @@ The current repository does not ship a trained deployment model or a clinical de
 
 ## Benchmark results
 
-These results are from the completed accessible-video benchmark run documented in `docs/full_ssbdplus_benchmark_report.md`.
+These results are from the completed accessible-video benchmark run documented in `docs/full_ssbdplus_benchmark_report.md`, including the Distilled Multi-Scale Skeleton Temporal Feature Learning (D-MS-STF) comparison.
 
 Dataset snapshot for the final Stage G comparison:
 
