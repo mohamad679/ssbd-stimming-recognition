@@ -12,12 +12,14 @@ authors = [
   { name = "SSBD Behavior Recognition Project" }
 ]
 dependencies = [
+  "defusedxml>=0.7.1",
   "numpy>=1.26",
   "scikit-learn>=1.4",
 ]
 
 [project.optional-dependencies]
 dev = [
+  "pip-audit>=2.7",
   "pytest>=8.0",
 ]
 benchmark = [
