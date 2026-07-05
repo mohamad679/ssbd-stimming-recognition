@@ -24,10 +24,17 @@ def test_limitations_state_non_deployment_and_non_clinical_status():
     assert "not an autism diagnosis tool" in content
 
 
-def test_final_status_avoids_real_benchmark_claims():
+def test_final_status_reflects_completed_accessible_video_benchmark():
     content = _read("docs/final_project_status.md")
-    assert "no real ssbd benchmark results" in content
-    assert "no real image or video inference has been run" in content
+    assert "completed accessible-video ssbd+ benchmark run" in content
+    assert "non-diagnostic research scaffold" in content
+
+
+def test_full_benchmark_report_keeps_non_diagnostic_guardrails():
+    content = _read("docs/full_ssbdplus_benchmark_report.md")
+    assert "not autism diagnosis" in content or "not an autism diagnosis" in content
+    assert "not screening" in content
+    assert "not deployment-ready" in content
 
 
 def test_readme_keeps_non_diagnostic_framing():

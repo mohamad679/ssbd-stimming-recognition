@@ -8,22 +8,22 @@
 - Phase 3: LOSO, permutation, provenance, and SVG validation scaffold completed
 - Phase 4: skeleton SVG and feature-importance interpretability scaffold completed
 - Phase 5: packaging, model card, limitations, and CI scaffold completed
+- Completed accessible-video SSBD+ benchmark run documented in `docs/full_ssbdplus_benchmark_report.md`
 
 ## Current limitations
 
-- No real SSBD benchmark results are claimed in this repository
-- No real image or video inference has been run in this repository
+- The benchmark run is research-only, accessible-video only, and not a clinical or screening validation
 - No clinical validation has been performed
 - No deployment system is provided
+- The repository does not claim diagnostic, screening, SOTA, or production readiness
 
 ## Safe next steps
 
-- Run allowed video processing externally on permitted data
-- Generate numeric keypoints and derived feature tables
-- Run the benchmark and validation scripts on those numeric artifacts
-- Record provenance for all downstream numeric inputs and reports
+- Preserve the numeric/report artifact boundary
+- Re-run the benchmark only on permitted data and only with privacy-safe outputs
+- Record provenance for any future numeric inputs and reports
 - Review any generated artifacts before deciding whether they belong in version control
 
 ## Repository status statement
 
-The repository is complete as a non-diagnostic research scaffold. It is suitable for reproducible packaging, documentation, CI, and future privacy-conscious numeric experimentation, but it does not justify diagnostic, clinical, deployment, or benchmark-performance claims.
+The repository is complete as a non-diagnostic research scaffold with a completed accessible-video benchmark report. It is suitable for reproducible packaging, documentation, CI, and future privacy-conscious numeric experimentation, but it does not justify diagnostic, clinical, deployment, screening, or production claims.

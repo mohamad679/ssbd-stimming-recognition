@@ -12,13 +12,21 @@ Lightweight research repository focused on proxy motor-behavior recognition from
 - Phase 3: complete as a scaffold, with LOSO validation, within-group permutation testing, artifact provenance manifest tooling, and SVG/XML validation tooling available
 - Phase 4: complete as a scaffold, with privacy-safe skeleton SVG visualization and model-native numeric feature-importance tooling
 - Phase 5: complete as a scaffold, with packaging metadata, conservative model-card and limitations documentation, and GitHub Actions CI for lightweight synthetic checks
-- Available Phase 3 scripts: `scripts/run_loso.py`, `scripts/run_permutation_test.py`, `scripts/build_artifact_manifest.py`, `scripts/validate_svgs.py`
-- Available Phase 4 scripts: `scripts/render_skeleton_svg.py` renders abstract stick-figure SVGs from numeric keypoint CSVs, and `scripts/explain_feature_importance.py` summarizes exploratory, non-causal model-native importances from numeric feature tables; neither reads raw frames, images, or videos
-- Phase 4 closeout: see `docs/phase4_readiness_report.md`
-- Phase 5 documentation: see `docs/model_card.md`, `docs/limitations.md`, and `docs/final_project_status.md`
+- Current benchmark status: completed accessible-video Colab run documented in `docs/full_ssbdplus_benchmark_report.md`
+- Benchmarked on 36 SSBD+ metadata videos; 28 were successfully processed and 8 were unavailable at access time
+- Feature table size: 65 segments, 1,178 windows, 349 positive windows, 829 negative windows, about 29.6% positive prevalence
+- Safe artifacts only: final outputs are numeric CSV/JSON/TXT/SVG reports; raw videos, frames, images, MediaPipe `.task` files, trained model binaries, and the result zip stay out of version control
+- Available scripts: `scripts/run_loso.py`, `scripts/run_permutation_test.py`, `scripts/build_artifact_manifest.py`, `scripts/validate_svgs.py`
+- Visualization and interpretation: `scripts/render_skeleton_svg.py` renders abstract stick-figure SVGs from numeric keypoint CSVs, and `scripts/explain_feature_importance.py` summarizes exploratory, non-causal model-native importances from numeric feature tables; neither reads raw frames, images, or videos
+- Documentation: see `docs/full_ssbdplus_benchmark_report.md`, `docs/model_card.md`, `docs/limitations.md`, and `docs/final_project_status.md`
 - CI: GitHub Actions runs `pytest` and `compileall` against synthetic, privacy-safe inputs only; it does not download videos or run real SSBD inference
-- Full verification: 137 tests passed; the environment-level `pytest-asyncio` warning is non-blocking
-- Not yet implemented: real MediaPipe extraction, real benchmark results, real SSBD video inference, reviewed interpretability artifacts, deployment, or clinical validation
+
+| Protocol | Model | AUROC | AUPRC | Brier | ECE |
+| --- | --- | ---: | ---: | ---: | ---: |
+| GroupKFold, 5 folds | Logistic Regression | 0.659 ± 0.024 | 0.440 ± 0.137 | 0.232 | 0.197 |
+| GroupKFold, 5 folds | Random Forest | 0.591 ± 0.044 | 0.368 ± 0.106 | 0.220 | 0.151 |
+| LOSO, 28 folds | Logistic Regression | 0.665 ± 0.179 | 0.596 ± 0.296 | — | — |
+| LOSO, 28 folds | Random Forest | 0.571 ± 0.165 | 0.528 ± 0.280 | — | — |
 
 Planned top-level layout:
 
