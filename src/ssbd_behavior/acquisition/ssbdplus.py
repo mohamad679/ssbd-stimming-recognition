@@ -5,11 +5,12 @@ from __future__ import annotations
 import csv
 import math
 import re
-import xml.etree.ElementTree as ET
 from collections import Counter
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Iterable
+
+import defusedxml.ElementTree as ET
 
 
 _CSV_COLUMNS = frozenset(
