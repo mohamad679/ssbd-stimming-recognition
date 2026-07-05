@@ -11,12 +11,14 @@ Lightweight research repository focused on proxy motor-behavior recognition from
 - Phase 2: deterministic logistic-regression and random-forest baselines, group/video-disjoint `GroupKFold`, fold-level AUROC/AUPRC/Brier/ECE reporting, and an isolated leaky-split diagnostic
 - Phase 3: complete as a scaffold, with LOSO validation, within-group permutation testing, artifact provenance manifest tooling, and SVG/XML validation tooling available
 - Phase 4: complete as a scaffold, with privacy-safe skeleton SVG visualization and model-native numeric feature-importance tooling
+- Phase 5: complete as a scaffold, with packaging metadata, conservative model-card and limitations documentation, and GitHub Actions CI for lightweight synthetic checks
 - Available Phase 3 scripts: `scripts/run_loso.py`, `scripts/run_permutation_test.py`, `scripts/build_artifact_manifest.py`, `scripts/validate_svgs.py`
 - Available Phase 4 scripts: `scripts/render_skeleton_svg.py` renders abstract stick-figure SVGs from numeric keypoint CSVs, and `scripts/explain_feature_importance.py` summarizes exploratory, non-causal model-native importances from numeric feature tables; neither reads raw frames, images, or videos
 - Phase 4 closeout: see `docs/phase4_readiness_report.md`
+- Phase 5 documentation: see `docs/model_card.md`, `docs/limitations.md`, and `docs/final_project_status.md`
+- CI: GitHub Actions runs `pytest` and `compileall` against synthetic, privacy-safe inputs only; it does not download videos or run real SSBD inference
 - Full verification: 137 tests passed; the environment-level `pytest-asyncio` warning is non-blocking
-- Next: Phase 5 packaging, model card, limitations, and CI
-- Not yet implemented: real MediaPipe extraction, real benchmark results, real SSBD video inference, reviewed interpretability artifacts, packaging/model card, deployment, or clinical validation
+- Not yet implemented: real MediaPipe extraction, real benchmark results, real SSBD video inference, reviewed interpretability artifacts, deployment, or clinical validation
 
 Planned top-level layout:
 
