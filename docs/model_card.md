@@ -30,14 +30,44 @@ The current repository does not ship a trained deployment model or a clinical de
 
 These results are from the completed accessible-video benchmark run documented in `docs/full_ssbdplus_benchmark_report.md`.
 
-| Protocol | Model | AUROC | AUPRC | Brier | ECE |
-| --- | --- | ---: | ---: | ---: | ---: |
-| GroupKFold, 5 folds | Logistic Regression | 0.659 ± 0.024 | 0.440 ± 0.137 | 0.232 | 0.197 |
-| GroupKFold, 5 folds | Random Forest | 0.591 ± 0.044 | 0.368 ± 0.106 | 0.220 | 0.151 |
-| LOSO, 28 folds | Logistic Regression | 0.665 ± 0.179 | 0.596 ± 0.296 | — | — |
-| LOSO, 28 folds | Random Forest | 0.571 ± 0.165 | 0.528 ± 0.280 | — | — |
+Dataset snapshot for the final Stage G comparison:
 
-Permutation test summary: logistic regression AUROC, 1,000 permutations, observed AUROC 0.659495, p-value 0.000999.
+- Accessible SSBD+ videos processed: 28
+- Feature windows: 1,178
+- Positive windows: 349
+- Negative windows: 829
+- Final Stage G feature count: 48 total features, including 42 `ms_*` multi-scale features
+
+| Method | Distillation | Multi-scale | GroupKFold AUROC | GroupKFold AUPRC | LOSO AUROC | LOSO AUPRC | Permutation p |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| Current Logistic Baseline | No | No | 0.659 | 0.440 | 0.665 | 0.596 | — |
+| Current Random Forest | No | No | 0.604 | 0.387 | 0.575 | 0.531 | — |
+| MS-STF only | No | Yes | 0.622 | 0.436 | 0.641 | 0.575 | — |
+| Teacher only | No | Yes | 0.637 | 0.449 | 0.607 | 0.606 | — |
+| Student hard | No | Yes | 0.622 | 0.436 | 0.641 | 0.575 | — |
+| D-MS-STF proposed | Yes | Yes | 0.625 | 0.447 | 0.633 | 0.590 | 0.000999 |
+
+Calibration snapshot:
+
+| Protocol | Model | Brier | ECE |
+| --- | --- | ---: | ---: |
+| GroupKFold | Logistic Regression | 0.232 | 0.197 |
+| GroupKFold | Teacher only | 0.208 | 0.139 |
+| GroupKFold | D-MS-STF proposed | 0.223 | 0.166 |
+| LOSO | Logistic Regression | 0.238 | 0.286 |
+| LOSO | Teacher only | 0.233 | 0.287 |
+| LOSO | D-MS-STF proposed | 0.244 | 0.279 |
+
+Permutation test summary: D-MS-STF GroupKFold AUROC, 1,000 permutations,
+p-value 0.000999.
+
+Final interpretation: Stage G completed a real D-MS-STF run on the
+accessible-video SSBD+ benchmark. D-MS-STF was statistically above the
+within-group permutation null, did not outperform the logistic baseline on
+AUROC, provided a small GroupKFold AUPRC improvement, and showed somewhat
+better GroupKFold calibration than logistic. Teacher-only achieved better
+calibration/Brier in some settings. The proposed method is a tested research
+contribution and ablation framework, not a demonstrated superior or SOTA model.
 
 ## Training and evaluation status
 
@@ -45,6 +75,7 @@ Permutation test summary: logistic regression AUROC, 1,000 permutations, observe
 - No clinical validation has been performed
 - No deployed model is provided
 - The codebase currently provides scaffolding, synthetic tests, and reproducible evaluation structure in addition to the completed benchmark report
+- Stage G results are mixed and do not support an overall superiority claim for D-MS-STF over the logistic baseline
 
 ## Data and privacy
 
@@ -52,6 +83,7 @@ Permutation test summary: logistic regression AUROC, 1,000 permutations, observe
 - Numeric keypoints and derived numeric features are the intended persistence targets
 - Public dataset access must follow source terms, usage restrictions, and this repository's ethics policy
 - Privacy-safe visual outputs, if generated externally for review, should remain abstract skeleton renderings rather than identifiable child imagery
+- Generated Stage G artifacts such as `aggregate_metrics.csv`, `fold_metrics.csv`, `report.json`, `features_with_ms.csv`, and `ssbd_stage_g_final_results.zip` should stay out of version control unless explicitly intended
 
 See also: `docs/data_ethics_policy.md`.
 

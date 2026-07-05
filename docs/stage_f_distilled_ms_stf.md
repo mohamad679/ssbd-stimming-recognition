@@ -174,18 +174,36 @@ python3 scripts/run_distilled_ms_stf.py features_stage_f.csv \
 Run without `--include-calibrated-teacher` first. Calibration needs enough
 videos and both labels in every nested calibration partition.
 
-## Comparison target
+## Final accessible-video Stage G comparison
 
 | Method | Distillation | Multi-scale | GroupKFold AUROC | GroupKFold AUPRC | LOSO AUROC | LOSO AUPRC | Permutation p |
 |---|---:|---:|---:|---:|---:|---:|---:|
-| Current Logistic Baseline | No | No | 0.659 | 0.440 | 0.665 | 0.596 | 0.000999 |
-| Current Random Forest | No | No | 0.591 | 0.368 | 0.571 | 0.528 | unavailable |
-| MS-STF only | No | Yes | pending | pending | pending | pending | pending |
-| D-MS-STF proposed | Yes | Yes | pending | pending | pending | pending | pending |
+| Current Logistic Baseline | No | No | 0.659 | 0.440 | 0.665 | 0.596 | — |
+| Current Random Forest | No | No | 0.604 | 0.387 | 0.575 | 0.531 | — |
+| MS-STF only | No | Yes | 0.622 | 0.436 | 0.641 | 0.575 | — |
+| Teacher only | No | Yes | 0.637 | 0.449 | 0.607 | 0.606 | — |
+| Student hard | No | Yes | 0.622 | 0.436 | 0.641 | 0.575 | — |
+| D-MS-STF proposed | Yes | Yes | 0.625 | 0.447 | 0.633 | 0.590 | 0.000999 |
 
-Existing baseline values are historical benchmark references. Stage F values
-must come from a fresh, versioned run on the same feature-table cohort and
-group definitions before comparison.
+Calibration snapshot for the main comparison:
+
+| Protocol | Model | Brier | ECE |
+| --- | --- | ---: | ---: |
+| GroupKFold | Logistic Regression | 0.232 | 0.197 |
+| GroupKFold | Teacher only | 0.208 | 0.139 |
+| GroupKFold | D-MS-STF proposed | 0.223 | 0.166 |
+| LOSO | Logistic Regression | 0.238 | 0.286 |
+| LOSO | Teacher only | 0.233 | 0.287 |
+| LOSO | D-MS-STF proposed | 0.244 | 0.279 |
+
+Stage G completed a real D-MS-STF run on the accessible-video SSBD+ benchmark.
+D-MS-STF was statistically above the within-group permutation null, did not
+outperform the current logistic baseline on AUROC, slightly improved GroupKFold
+AUPRC, and showed somewhat better GroupKFold calibration than logistic.
+Teacher-only achieved better calibration/Brier in some settings. The overall
+empirical conclusion is mixed: D-MS-STF is a valid proposed research method and
+ablation framework, but not a demonstrated superior model on this small
+accessible-video cohort.
 
 ## Limitations and guardrails
 
@@ -193,7 +211,7 @@ group definitions before comparison.
   diagnosis, clinical screening, or clinical validation.
 - It is not a medical device, surveillance system, deployment claim, or
   production system.
-- No SOTA claim is supported by this scaffold or by an unfilled comparison row.
+- No SOTA claim is supported by this scaffold or by the final mixed Stage G results.
 - Coordinate-derived velocities are sensitive to pose scale, camera motion,
   extraction frame rate, and missing observations.
 - FFT features assume approximately regular sampling after missing observations

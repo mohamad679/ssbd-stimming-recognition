@@ -14,8 +14,19 @@ Run summary:
 - Positive windows: 349
 - Negative windows: 829
 - Positive prevalence: approximately 29.6%
+- Stage G feature set: 48 total features after augmentation
+- Multi-scale feature count: 42 `ms_*` features
+- Permutation test count for the final D-MS-STF run: 1,000
 
 The strongest model signal in this run came from wrist-distance variability and repetitive wrist/head movement features. That is consistent with a non-diagnostic motor-behavior recognition task and should not be reframed as autism detection or screening.
+
+Stage G completed a real D-MS-STF run on the accessible-video SSBD+ benchmark.
+The final empirical picture is mixed: D-MS-STF was statistically above the
+within-group permutation null, did not beat the current logistic baseline on
+AUROC, slightly improved GroupKFold AUPRC, and showed somewhat better
+GroupKFold calibration than logistic. Teacher-only achieved better
+calibration/Brier in some settings. This supports D-MS-STF as a valid proposed
+research method and ablation framework, not as a superior or SOTA model.
 
 ## Research-only scope and guardrails
 
@@ -41,6 +52,8 @@ The strongest model signal in this run came from wrist-distance variability and 
 | Positive windows | 349 | Windows labeled positive for the target behavior |
 | Negative windows | 829 | Windows labeled negative for the target behavior |
 | Positive prevalence | 29.6% | 349 / 1,178 |
+| Total features after Stage G augmentation | 48 | Final feature table used for the D-MS-STF comparison |
+| `ms_*` multi-scale features | 42 | Added trailing 1 s, 2 s, and 4 s temporal summaries |
 
 Unavailable videos:
 
@@ -65,9 +78,11 @@ Observed failure causes were YouTube access and availability issues such as priv
 6. Merge accessible per-video feature tables into a benchmark matrix.
 7. Run group-disjoint baseline evaluation.
 8. Run leave-one-subject-out evaluation.
-9. Run permutation testing for the primary linear baseline.
-10. Extract model-native feature importance from the fitted logistic regression model.
-11. Write numeric CSV/JSON/TXT/SVG artifacts and a safe final zip archive.
+9. Augment the feature table with aligned multi-scale numeric temporal features.
+10. Run Stage G ablations for MS-STF only, teacher-only, student-hard, and D-MS-STF.
+11. Run 1,000 within-group permutations for the final D-MS-STF comparison.
+12. Extract model-native feature importance from the fitted logistic regression model.
+13. Write numeric CSV/JSON/TXT/SVG artifacts and a safe final zip archive.
 
 Raw videos are temporary in the pipeline and are deleted after pose extraction. The final artifact zip contains only safe numeric and report artifacts.
 
@@ -89,30 +104,47 @@ The final archive is restricted to numeric CSV/JSON/TXT/SVG outputs. It intentio
 | Protocol | Folds / repetitions | Grouping rule | Reported metrics |
 | --- | ---: | --- | --- |
 | GroupKFold | 5 folds | All windows from a video stay in the same fold | AUROC, AUPRC, Brier, ECE |
-| LOSO | 28 folds | One accessible video left out per fold | AUROC, AUPRC |
-| Permutation test | 1,000 permutations | Logistic regression AUROC under label permutations | Observed AUROC, p-value |
+| LOSO | 28 folds | One accessible video left out per fold | AUROC, AUPRC, Brier, ECE |
+| Permutation test | 1,000 permutations | D-MS-STF GroupKFold AUROC under within-video label permutations | Observed AUROC, p-value |
 
 The reported fold summaries are means with standard deviations across folds unless otherwise noted. The permutation p-value is an empirical Monte Carlo estimate.
 
-## GroupKFold results
+## Final Stage G discrimination comparison
 
-| Model | AUROC | AUPRC | Brier | ECE |
-| --- | ---: | ---: | ---: | ---: |
-| Logistic Regression | 0.659 ± 0.024 | 0.440 ± 0.137 | 0.232 | 0.197 |
-| Random Forest | 0.591 ± 0.044 | 0.368 ± 0.106 | 0.220 | 0.151 |
+| Method | Distillation | Multi-scale | GroupKFold AUROC | GroupKFold AUPRC | LOSO AUROC | LOSO AUPRC | Permutation p |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| Current Logistic Baseline | No | No | 0.659 | 0.440 | 0.665 | 0.596 | — |
+| Current Random Forest | No | No | 0.604 | 0.387 | 0.575 | 0.531 | — |
+| MS-STF only | No | Yes | 0.622 | 0.436 | 0.641 | 0.575 | — |
+| Teacher only | No | Yes | 0.637 | 0.449 | 0.607 | 0.606 | — |
+| Student hard | No | Yes | 0.622 | 0.436 | 0.641 | 0.575 | — |
+| D-MS-STF proposed | Yes | Yes | 0.625 | 0.447 | 0.633 | 0.590 | 0.000999 |
 
-## LOSO results
+## Calibration snapshot
 
-| Model | AUROC | AUPRC |
-| --- | ---: | ---: |
-| Logistic Regression | 0.665 ± 0.179 | 0.596 ± 0.296 |
-| Random Forest | 0.571 ± 0.165 | 0.528 ± 0.280 |
+| Protocol | Model | Brier | ECE |
+| --- | --- | ---: | ---: |
+| GroupKFold | Logistic Regression | 0.232 | 0.197 |
+| GroupKFold | Teacher only | 0.208 | 0.139 |
+| GroupKFold | D-MS-STF proposed | 0.223 | 0.166 |
+| LOSO | Logistic Regression | 0.238 | 0.286 |
+| LOSO | Teacher only | 0.233 | 0.287 |
+| LOSO | D-MS-STF proposed | 0.244 | 0.279 |
 
 ## Permutation test
 
 | Model | Metric | Observed value | Permutations | p-value |
 | --- | --- | ---: | ---: | ---: |
-| Logistic Regression | AUROC | 0.659495 | 1,000 | 0.000999 |
+| D-MS-STF proposed | GroupKFold AUROC | 0.625 | 1,000 | 0.000999 |
+
+## Final Stage G interpretation
+
+- Stage G completed a real D-MS-STF run on the accessible-video SSBD+ benchmark.
+- D-MS-STF was statistically above the within-group permutation null.
+- D-MS-STF did not outperform the current logistic baseline on AUROC.
+- D-MS-STF provided a small GroupKFold AUPRC improvement over the logistic baseline.
+- D-MS-STF showed somewhat better GroupKFold calibration than logistic, while teacher-only achieved the best Brier/ECE values in some settings.
+- Overall empirical conclusion: mixed results. D-MS-STF is a valid proposed method and ablation framework, but not a demonstrated superior model on this small accessible-video cohort.
 
 ## Feature importance
 
@@ -131,9 +163,14 @@ These are model-native, non-causal importance signals. They describe what the fi
 
 ## Interpretation
 
-The strongest signal in this benchmark came from repetitive upper-limb and head-motion structure, especially wrist-distance variability and periodicity. That is consistent with a proxy motor-behavior recognition problem built from public research video.
+The strongest signal in this benchmark came from repetitive upper-limb and
+head-motion structure, especially wrist-distance variability and periodicity.
+That is consistent with a proxy motor-behavior recognition problem built from
+public research video.
 
-The results should be read as exploratory numeric evidence for a narrow research task. They do not support autism detection, autism screening, clinical triage, medical-device claims, or deployment claims.
+The results should be read as exploratory numeric evidence for a narrow
+research task. They do not support autism detection, autism screening,
+clinical triage, medical-device claims, or deployment claims.
 
 ## Limitations
 
@@ -141,6 +178,7 @@ The results should be read as exploratory numeric evidence for a narrow research
 - YouTube availability and access conditions can change over time.
 - The number of independent videos is modest, which makes fold estimates unstable.
 - LOSO variance is high, so single-fold values should not be overinterpreted.
+- The D-MS-STF comparison is mixed and does not establish overall superiority to the logistic baseline.
 - Pose-estimation noise, occlusion, compression, and tracking errors can affect features.
 - The benchmark is non-clinical and non-diagnostic by design.
 - The evaluation does not establish real-world generalization, screening validity, or clinical validity.
@@ -160,7 +198,13 @@ The results should be read as exploratory numeric evidence for a narrow research
 - The final result zip contains only safe numeric/report artifacts.
 - The benchmark notebook documents the one-command Colab invocation.
 - A packaging helper script is available to build the upload zip without including raw media or model artifacts.
+- The final Colab run produced generated artifacts such as `aggregate_metrics.csv`, `fold_metrics.csv`, `report.json`, `features_with_ms.csv`, and `ssbd_stage_g_final_results.zip`; these are generated outputs and should not be committed unless explicitly intended.
 
 ## Conclusion
 
-This completed benchmark run shows that the repository can produce reproducible, privacy-conscious numeric outputs for accessible SSBD+ videos. The run remains strictly research-only. It is not diagnostic, not screening, not clinical validation, and not deployment-ready.
+This completed benchmark run shows that the repository can produce
+reproducible, privacy-conscious numeric outputs for accessible SSBD+ videos,
+including a real Stage G D-MS-STF ablation on the accessible-video cohort. The
+run remains strictly research-only. It is not diagnostic, not screening, not
+clinical validation, and not deployment-ready. The final empirical conclusion
+is mixed and does not justify superiority or SOTA claims for D-MS-STF.

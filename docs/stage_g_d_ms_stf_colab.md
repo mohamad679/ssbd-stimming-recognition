@@ -4,6 +4,18 @@ Stage G runs the Stage F D-MS-STF evaluator on the numeric artifacts already
 produced by the full SSBD+ benchmark. It does not download videos, decode
 frames, run MediaPipe, or require a MediaPipe `.task` file.
 
+The documented final Stage G run was executed on the accessible-video SSBD+
+benchmark cohort with 28 processed videos, 1,178 feature windows, 349 positive
+windows, 829 negative windows, 48 total features after augmentation, 42
+`ms_*` multi-scale features, and 1,000 within-group permutations.
+
+Final empirical conclusion: mixed results. D-MS-STF was statistically above the
+within-group permutation null, did not outperform the current logistic baseline
+on AUROC, provided a small GroupKFold AUPRC improvement, and showed somewhat
+better GroupKFold calibration than logistic. Teacher-only achieved better
+calibration/Brier in some settings. Treat D-MS-STF as a tested research method
+and ablation framework, not as a superior or SOTA model.
+
 ## Required inputs
 
 Use the extracted privacy-safe benchmark artifacts:
@@ -59,6 +71,7 @@ ARTIFACT_ROOT = Path("/content/drive/MyDrive/ssbd_benchmark_artifacts")
 KEYPOINTS = ARTIFACT_ROOT / "keypoints"                  # CSV file or directory
 FEATURE_CSV = ARTIFACT_ROOT / "features" / "all_features.csv"
 RESULT_DIR = Path("/content/drive/MyDrive/stage_g_results")
+ZIP_PATH = Path("/content/drive/MyDrive/ssbd_stage_g_final_results.zip")
 
 command = [
     sys.executable,
@@ -69,7 +82,7 @@ command = [
     "--group-splits", "5",
     "--inner-splits", "3",
     "--n-estimators", "200",
-    "--create-zip",
+    "--zip-path", str(ZIP_PATH),
 ]
 if SMOKE:
     command += ["--smoke", "--smoke-permutations", "2"]  # 5 is also supported
@@ -94,11 +107,19 @@ stage_g_results/
   report.json
 ```
 
-With `--create-zip`, a sibling `stage_g_results.zip` is also written. The zip
-builder includes only CSV, JSON, and TXT files and excludes video, image,
-frame, `.task`, and model-binary patterns. It also excludes safe-looking files
-inside directories named `raw`, `video(s)`, `frame(s)`, `image(s)`, or
-`model(s)`. The zip is a generated result and must not be committed.
+With `--zip-path /path/to/ssbd_stage_g_final_results.zip`, the final Colab run
+can also emit an explicitly named safe archive:
+
+```text
+ssbd_stage_g_final_results.zip
+```
+
+If `--zip-path` is omitted and `--create-zip` is used, the default name is a
+sibling `<output-dir>.zip`. The zip builder includes only CSV, JSON, and TXT
+files and excludes video, image, frame, `.task`, and model-binary patterns. It
+also excludes safe-looking files inside directories named `raw`, `video(s)`,
+`frame(s)`, `image(s)`, or `model(s)`. The zip is a generated result and must
+not be committed.
 
 The helper explicitly invokes `scripts/run_distilled_ms_stf.py` with both
 `group_kfold` and `loso`. The final default is 1,000 within-group permutations;
@@ -111,8 +132,39 @@ If `ms_*` columns already exist, `--keypoints` can be omitted:
 python3 scripts/benchmark/run_stage_g_d_ms_stf_colab.py \
   --feature-csv /path/to/features_with_ms.csv \
   --output-dir /path/to/stage_g_results \
-  --smoke --create-zip
+  --smoke --zip-path /path/to/ssbd_stage_g_final_results.zip
 ```
+
+Generated artifacts from the final Colab run commonly include:
+
+- `aggregate_metrics.csv`
+- `fold_metrics.csv`
+- `report.json`
+- `features_with_ms.csv`
+- `ssbd_stage_g_final_results.zip`
+
+These are generated artifacts and should not be committed unless explicitly
+intended.
+
+## Final reported results
+
+| Method | Distillation | Multi-scale | GroupKFold AUROC | GroupKFold AUPRC | LOSO AUROC | LOSO AUPRC | Permutation p |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| Current Logistic Baseline | No | No | 0.659 | 0.440 | 0.665 | 0.596 | — |
+| Current Random Forest | No | No | 0.604 | 0.387 | 0.575 | 0.531 | — |
+| MS-STF only | No | Yes | 0.622 | 0.436 | 0.641 | 0.575 | — |
+| Teacher only | No | Yes | 0.637 | 0.449 | 0.607 | 0.606 | — |
+| Student hard | No | Yes | 0.622 | 0.436 | 0.641 | 0.575 | — |
+| D-MS-STF proposed | Yes | Yes | 0.625 | 0.447 | 0.633 | 0.590 | 0.000999 |
+
+| Protocol | Model | Brier | ECE |
+| --- | --- | ---: | ---: |
+| GroupKFold | Logistic Regression | 0.232 | 0.197 |
+| GroupKFold | Teacher only | 0.208 | 0.139 |
+| GroupKFold | D-MS-STF proposed | 0.223 | 0.166 |
+| LOSO | Logistic Regression | 0.238 | 0.286 |
+| LOSO | Teacher only | 0.233 | 0.287 |
+| LOSO | D-MS-STF proposed | 0.244 | 0.279 |
 
 ## Guardrails and limitations
 
