@@ -6,6 +6,11 @@ unless `--multiscale-prefix` is supplied. The command requires an explicit
 output directory and writes only numeric CSV/JSON reports. See
 `docs/stage_f_distilled_ms_stf.md` for the leakage-safe workflow.
 
-Placeholder directory for future utility scripts.
+`benchmark/run_stage_g_d_ms_stf_colab.py` is the numeric-only Colab orchestration
+entry point for existing SSBD+ keypoint and feature artifacts. It adds missing
+`ms_*` columns, runs the Stage F script with GroupKFold and LOSO, supports 2/5
+permutation smoke runs and 1,000-permutation final runs, and optionally creates
+an allowlisted safe result zip. See `docs/stage_g_d_ms_stf_colab.md`.
 
-No executable project scripts are implemented yet.
+All data-bearing commands require explicit local paths. Generated datasets and
+result archives stay out of version control.

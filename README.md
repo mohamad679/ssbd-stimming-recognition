@@ -14,10 +14,11 @@ Lightweight research repository focused on proxy motor-behavior recognition from
 - Phase 5: complete as a scaffold, with packaging metadata, conservative model-card and limitations documentation, and GitHub Actions CI for lightweight synthetic checks
 - Current benchmark status: completed accessible-video Colab run documented in `docs/full_ssbdplus_benchmark_report.md`
 - Stage F: D-MS-STF adds multi-scale numeric skeleton features and strictly fold-local, inner-cross-fitted teacher/student evaluation; see `docs/stage_f_distilled_ms_stf.md`
+- Stage G: a numeric-only Colab workflow reuses existing SSBD+ keypoint/feature artifacts, runs GroupKFold and LOSO D-MS-STF, and creates privacy-safe reports; see `docs/stage_g_d_ms_stf_colab.md`
 - Benchmarked on 36 SSBD+ metadata videos; 28 were successfully processed and 8 were unavailable at access time
 - Feature table size: 65 segments, 1,178 windows, 349 positive windows, 829 negative windows, about 29.6% positive prevalence
 - Safe artifacts only: final outputs are numeric CSV/JSON/TXT/SVG reports; raw videos, frames, images, MediaPipe `.task` files, trained model binaries, and the result zip stay out of version control
-- Available scripts: `scripts/run_loso.py`, `scripts/run_permutation_test.py`, `scripts/run_distilled_ms_stf.py`, `scripts/build_artifact_manifest.py`, `scripts/validate_svgs.py`
+- Available scripts: `scripts/run_loso.py`, `scripts/run_permutation_test.py`, `scripts/run_distilled_ms_stf.py`, `scripts/benchmark/run_stage_g_d_ms_stf_colab.py`, `scripts/build_artifact_manifest.py`, `scripts/validate_svgs.py`
 - Visualization and interpretation: `scripts/render_skeleton_svg.py` renders abstract stick-figure SVGs from numeric keypoint CSVs, and `scripts/explain_feature_importance.py` summarizes exploratory, non-causal model-native importances from numeric feature tables; neither reads raw frames, images, or videos
 - Documentation: see `docs/full_ssbdplus_benchmark_report.md`, `docs/model_card.md`, `docs/limitations.md`, and `docs/final_project_status.md`
 - CI: GitHub Actions runs `pytest` and `compileall` against synthetic, privacy-safe inputs only; it does not download videos or run real SSBD inference
