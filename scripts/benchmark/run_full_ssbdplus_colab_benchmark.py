@@ -27,6 +27,7 @@ import zipfile
 EXPECTED_SEGMENT_COUNT = 65
 EXPECTED_VIDEO_COUNT = 36
 DOWNLOAD_MARGIN_S = 5.0
+DEFAULT_SUBPROCESS_TIMEOUT_S = 900
 TASK_MODEL_URL = (
     "https://storage.googleapis.com/mediapipe-models/pose_landmarker/"
     "pose_landmarker_lite/float16/latest/pose_landmarker_lite.task"
@@ -439,6 +440,18 @@ def mediapipe_requires_task_model() -> bool:
 
 
 def download_task_model(destination: Path) -> None:
+    expected_sha256 = (
+        os.environ.get("MEDIAPIPE_POSE_LANDMARKER_TASK_SHA256", "").strip().lower()
+    )
+    if not expected_sha256:
+        raise StageError(
+            "MEDIAPIPE_POSE_LANDMARKER_TASK_SHA256 is required to download the task model"
+        )
+    if re.fullmatch(r"[0-9a-f]{64}", expected_sha256) is None:
+        raise StageError(
+            "MEDIAPIPE_POSE_LANDMARKER_TASK_SHA256 must be a SHA-256 hex digest"
+        )
+
     destination.parent.mkdir(parents=True, exist_ok=True)
     temporary = destination.with_suffix(".task.tmp")
     try:
@@ -446,6 +459,13 @@ def download_task_model(destination: Path) -> None:
             shutil.copyfileobj(response, stream)
         if temporary.stat().st_size < 1024:
             raise RuntimeError("downloaded MediaPipe task model is unexpectedly small")
+        with temporary.open("rb") as stream:
+            actual_sha256 = hashlib.file_digest(stream, "sha256").hexdigest()
+        if actual_sha256 != expected_sha256:
+            raise StageError(
+                "downloaded MediaPipe task model SHA-256 mismatch: "
+                f"expected {expected_sha256}, got {actual_sha256}"
+            )
         os.replace(temporary, destination)
     except BaseException:
         temporary.unlink(missing_ok=True)
@@ -877,17 +897,26 @@ def _write_artifact_manifest(artifact_root: Path) -> None:
 
 
 def _run_command(
-    command: Sequence[str], cwd: Path, environment: dict[str, str]
+    command: Sequence[str],
+    cwd: Path,
+    environment: dict[str, str],
+    timeout: float = DEFAULT_SUBPROCESS_TIMEOUT_S,
 ) -> str:
-    result = subprocess.run(
-        command,
-        cwd=cwd,
-        env=environment,
-        text=True,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
-        check=False,
-    )
+    try:
+        result = subprocess.run(
+            command,
+            cwd=cwd,
+            env=environment,
+            text=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            check=False,
+            timeout=timeout,
+        )
+    except subprocess.TimeoutExpired as exc:
+        raise StageError(
+            f"command timed out after {timeout} seconds: {command[0]}"
+        ) from exc
     if result.returncode != 0:
         detail = (result.stderr or result.stdout).strip()
         raise StageError(f"command failed ({result.returncode}): {detail[-2000:]}")
@@ -895,10 +924,14 @@ def _run_command(
 
 
 def _run_command_report(
-    command: Sequence[str], cwd: Path, environment: dict[str, str], report: Path
+    command: Sequence[str],
+    cwd: Path,
+    environment: dict[str, str],
+    report: Path,
+    timeout: float = DEFAULT_SUBPROCESS_TIMEOUT_S,
 ) -> None:
     try:
-        output = _run_command(command, cwd, environment)
+        output = _run_command(command, cwd, environment, timeout=timeout)
     except Exception as exc:
         report.write_text(f"status: failed\nerror: {exc}\n", encoding="utf-8")
         raise

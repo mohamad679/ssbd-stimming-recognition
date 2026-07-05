@@ -1,7 +1,10 @@
 import csv
+import hashlib
 import importlib.util
+import io
 import json
 from pathlib import Path
+import subprocess
 import sys
 import zipfile
 
@@ -145,6 +148,43 @@ def test_resume_skips_only_valid_nonempty_csv(tmp_path):
         resume=True,
         required_columns=runner.KEYPOINT_COLUMNS,
     )
+
+
+def test_task_model_download_requires_and_verifies_sha256(tmp_path, monkeypatch):
+    runner = _load_runner()
+    destination = tmp_path / "pose.task"
+    payload = b"verified-model" * 128
+    expected_sha256 = hashlib.sha256(payload).hexdigest()
+    monkeypatch.setattr(runner, "urlopen", lambda *args, **kwargs: io.BytesIO(payload))
+
+    with pytest.raises(runner.StageError, match="is required"):
+        runner.download_task_model(destination)
+
+    monkeypatch.setenv("MEDIAPIPE_POSE_LANDMARKER_TASK_SHA256", expected_sha256)
+    runner.download_task_model(destination)
+    assert destination.read_bytes() == payload
+
+    destination.unlink()
+    monkeypatch.setenv("MEDIAPIPE_POSE_LANDMARKER_TASK_SHA256", "0" * 64)
+    with pytest.raises(runner.StageError, match="SHA-256 mismatch"):
+        runner.download_task_model(destination)
+    assert not destination.exists()
+    assert not destination.with_suffix(".task.tmp").exists()
+
+
+def test_command_report_translates_timeout_to_stage_error(tmp_path, monkeypatch):
+    runner = _load_runner()
+    report = tmp_path / "command.txt"
+
+    def raise_timeout(command, **kwargs):
+        assert kwargs["timeout"] == runner.DEFAULT_SUBPROCESS_TIMEOUT_S
+        raise subprocess.TimeoutExpired(command, kwargs["timeout"])
+
+    monkeypatch.setattr(runner.subprocess, "run", raise_timeout)
+    with pytest.raises(runner.StageError, match="timed out after 900 seconds"):
+        runner._run_command_report(["slow-command"], tmp_path, {}, report)
+
+    assert "command timed out after 900 seconds" in report.read_text(encoding="utf-8")
 
 
 def test_final_zip_contains_only_safe_allowlisted_artifacts(tmp_path):

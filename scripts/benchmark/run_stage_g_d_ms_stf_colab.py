@@ -361,7 +361,7 @@ def run_stage_g_workflow(
         "--protocol",
         "loso",
     ]
-    subprocess.run(command, cwd=REPOSITORY_ROOT, check=True)
+    subprocess.run(command, cwd=REPOSITORY_ROOT, check=True, timeout=900)
 
     result_files = tuple(destination / name for name in sorted(REQUIRED_RESULT_FILES))
     missing = [path.name for path in result_files if not path.is_file()]
