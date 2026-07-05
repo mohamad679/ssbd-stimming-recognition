@@ -10,6 +10,10 @@ from .engineering import (
     periodicity_strength,
     window_feature_dict,
 )
+from .multiscale_temporal import (
+    DEFAULT_TEMPORAL_SCALES_S,
+    multiscale_temporal_feature_dict,
+)
 from .pipeline import (
     FEATURE_TABLE_BASE_COLUMNS,
     FeatureRow,
@@ -24,6 +28,7 @@ __all__ = [
     "NOSE",
     "RIGHT_WRIST",
     "FEATURE_TABLE_BASE_COLUMNS",
+    "DEFAULT_TEMPORAL_SCALES_S",
     "FeatureRow",
     "VideoWindow",
     "WindowSpec",
@@ -32,6 +37,7 @@ __all__ = [
     "generate_windows_for_video",
     "inter_landmark_distance_series",
     "landmark_axis_series",
+    "multiscale_temporal_feature_dict",
     "periodicity_strength",
     "read_feature_table_csv",
     "window_feature_dict",
