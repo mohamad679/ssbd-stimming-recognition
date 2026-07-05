@@ -111,6 +111,10 @@ Use existing extracted keypoint and feature CSVs. Do not download raw videos for
 Stage F and do not upload videos, frames, images, or MediaPipe model files to the
 repository.
 
+For the maintained Stage G workflow that performs augmentation, smoke/final
+runs, and safe result packaging, follow `docs/stage_g_d_ms_stf_colab.md`. The
+manual example below documents the underlying feature operation.
+
 ```bash
 git clone https://github.com/mohamad679/ssbd-stimming-recognition.git
 cd ssbd-stimming-recognition
